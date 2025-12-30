@@ -32,11 +32,12 @@ public class CarController {
     }
 
     @PostMapping("/{id}/fuel")
-    public ResponseEntity<Void> addFuel(@PathVariable("id") String id, @RequestBody AddFuelRequest request) {
-        carService.addFuel(id, request.getLiters(), request.getPrice(), request.getOdometer());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Car> addFuel(@PathVariable("id") String id, @RequestBody AddFuelRequest request) {
+        Car car = carService.addFuel(id, request.getLiters(), request.getPrice(), request.getOdometer());
+        return ResponseEntity.ok(car);
     }
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get Fuel Stats", description = "This endpoint is for manual testing of fuel statistics calculation.")
     @GetMapping("/{id}/fuel/stats")
     public ResponseEntity<CarStats> getStats(@PathVariable("id") String id) {
         return ResponseEntity.ok(carService.getStats(id));

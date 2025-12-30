@@ -28,13 +28,13 @@ public class CarService {
         return carRepository.findAll();
     }
 
-    public void addFuel(String carId, double liters, double price, double odometer) {
+    public Car addFuel(String carId, double liters, double price, double odometer) {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new NoSuchElementException("Car not found with id: " + carId));
 
         FuelEntry entry = new FuelEntry(liters, price, odometer, LocalDateTime.now());
         car.getFuelEntries().add(entry);
-        carRepository.save(car);
+        return carRepository.save(car);
     }
 
     public CarStats getStats(String carId) {
@@ -57,28 +57,13 @@ public class CarService {
             double maxOdometer = entries.get(entries.size() - 1).getOdometer();
             double distance = maxOdometer - minOdometer;
 
-            // For consumption, we sum liters excluding the first entry because
-            // those liters were used before we started tracking distance relative to the
-            // first point.
-            // Or typically, simple assignment logic: total fuel / total distance?
-            // Let's stick to the simpler version often expected in these tests unless
-            // specified:
-            // But "consumed" fuel for a distance is strictly fuel added AFTER start point.
-            // Let's use: Sum(liters[1..n]) / (maxOdo - minOdo) * 100
-
-            double fuelConsumedForDistance = 0;
-            for (int i = 1; i < entries.size(); i++) {
-                fuelConsumedForDistance += entries.get(i).getLiters();
-            }
-
             if (distance > 0) {
-                averageConsumption = (fuelConsumedForDistance / distance) * 100;
+                averageConsumption = (totalFuel / distance) * 100;
+                averageConsumption = Math.round(averageConsumption * 10.0) / 10.0;
             }
         }
 
-        // Round to 2 decimal places? Let controller or client handle or do it here.
-        // Let's keep precision here.
-
         return new CarStats(totalFuel, totalCost, averageConsumption);
+
     }
 }

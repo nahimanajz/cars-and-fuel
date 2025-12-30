@@ -25,7 +25,6 @@ mvn clean install -DskipTests
 ```bash
 java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
 ```
-The server will start on `http://localhost:8080`.
 
 ### 3. API Documentation (Swagger UI)
 Once the backend is running, access the interactive API documentation at:
@@ -60,6 +59,23 @@ Retrieves total fuel, cost, and average consumption.
 ```bash
 java -jar cli/target/cli-0.0.1-SNAPSHOT.jar fuel-stats --carId <UUID>
 ```
+
+### Fuel Calculation Logic
+The system calculates average consumption using the following formula:
+\[
+\text{Consumption} = \left( \frac{\text{Sum of All Liters}}{\text{Max Odometer} - \text{Min Odometer}} \right) \times 100
+\]
+*Rounded to 1 decimal place.*
+
+**Note**: You must add at least **two** fuel entries with different odometer readings to calculate distance. If `Distance == 0` (e.g., single entry), consumption returns `0.0`.
+
+**Example Scenario**:
+To achieve a result of `6.4 L/100km` with `120L` total fuel:
+1. Create Car.
+2. Add Entry 1: Start point (e.g., 10,000 km).
+3. Add Entry 2: End point (e.g., 11,875 km, with cumulative liters summing to 120L).
+   - Distance = 1875 km.
+   - Calculation: `(120 / 1875) * 100 = 6.4`.
 
 ---
 
